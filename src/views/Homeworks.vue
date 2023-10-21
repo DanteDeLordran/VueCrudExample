@@ -10,6 +10,7 @@ const pages = computed(() => Math.ceil(homeworks.value.length / perPage))
 const page = ref(1)
 const showModal = ref(false)
 const selectedHomework = ref<Homework>({ _id: '', description: '', name: '', status: true });
+const tempHomework = ref<Homework>({ _id: '', description: '', name: '', status: true });
 
 const columns: DataTableColumnSource<string>[] = [
     { key: '_id', sortable: true },
@@ -26,13 +27,14 @@ onMounted(async () => {
 
 const editHomework = (homework: Homework) => {
     if (homework) {
-        selectedHomework.value = homework;
+        tempHomework.value = { ...homework }; // create a copy of homework
         showModal.value = true;
     }
 };
 
 const updateHomework = async () => {
-    if (selectedHomework.value) {
+    if (tempHomework.value) {
+        selectedHomework.value = { ...tempHomework.value }; // create a copy of tempHomework
         const index = homeworks.value.findIndex(homework => homework._id === selectedHomework.value!._id);
         if (index !== -1) {
             homeworks.value[index] = selectedHomework.value!;
@@ -41,6 +43,7 @@ const updateHomework = async () => {
         //await axios.put(`https://api-rest-tareas.onrender.com/api/task/`, selectedHomework.value);
     }
 };
+
 
 </script>
 
@@ -63,9 +66,9 @@ const updateHomework = async () => {
 
     <VaModal v-model="showModal" blur no-dismiss title="Edit Homework" hide-default-actions>
         <VaForm class="flex flex-col items-center justify-center mb-8">
-            <VaInput v-model="selectedHomework.name" label="Name" class="w-full max-w-md" />
-            <VaInput v-model="selectedHomework.description" label="Description" class="w-full max-w-md mt-4" />
-            <VaSwitch v-model="selectedHomework.status" label="Status" class="mt-4" />
+            <VaInput v-model="tempHomework.name" label="Name" class="w-full max-w-md" />
+            <VaInput v-model="tempHomework.description" label="Description" class="w-full max-w-md mt-4" />
+            <VaSwitch v-model="tempHomework.status" label="Status" class="mt-4" />
         </VaForm>
         <VaDivider />
         <template #footer>
